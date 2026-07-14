@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DaySync
 
-## Getting Started
+Schedule coworking sessions with your tech community.
+Set your availability once. See who you overlap with. Start a meeting instantly.
 
-First, run the development server:
+---
 
+## Local Development
+
+### Prerequisites
+- Node.js 18+
+- Docker
+
+### 1. Clone the repo
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/adam-abundis/daysync.git
+cd daysync
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Set up environment variables
+```bash
+cp .env.example .env
+```
+Fill in the values in `.env`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Start local services
+Docker runs your database, email catcher, and websocket server.
+```bash
+docker-compose up -d
+```
+Confirm all three are running:
+```bash
+docker ps
+```
+View caught emails locally: http://localhost:8025
 
-## Learn More
+### 5. Set up the database
+```bash
+npx prisma db push
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 6. Start the app
+```bash
+npm run dev
+```
+Open http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Local Services
 
-## Deploy on Vercel
+| Service  | Port | Purpose                     |
+|----------|----- |-----------------------------|
+| Postgres | 5432 | Database                    |
+| Mailpit  | 8025 | Catches emails locally      |
+| Soketi   | 6001 | Websockets for live updates |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Troubleshooting
+
+**Port 5432 in use:**
+```bash
+sudo lsof -i :5432
+```
+
+**Docker permission denied:**
+```bash
+sudo usermod -aG docker $USER
+```
+Log out and back in.
+
+**Database broken:**
+```bash
+docker-compose down -v
+docker-compose up -d
+npx prisma db push
+```
