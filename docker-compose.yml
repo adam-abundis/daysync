@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Your database. Stores all members, schedules, and meetings.
+  postgres:
+    image: postgres:15        # Pre-built Postgres. Docker downloads this.
+    restart: always           # Auto-restarts if it crashes.
+    environment:
+      POSTGRES_USER: postgres     # Must match DATABASE_URL in .env
+      POSTGRES_PASSWORD: postgres # Must match DATABASE_URL in .env
+      POSTGRES_DB: daysync        # Must match DATABASE_URL in .env
+    ports:
+      - '5432:5432'          # Your laptop:Docker box. How .env reaches Postgres.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Saves data between restarts.
+
+  # Catches emails locally. No real emails sent while building.
+  # View caught emails at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    restart: always
+    ports:
+      - '8025:8025'          # Browser port. Open this to see caught emails.
+      - '1025:1025'          # SMTP port. Must match EMAIL_PORT in .env
+
+  # Runs websockets locally. Keeps dashboard updated in real time.
+  soketi:
+    image: quay.io/soketi/soketi:latest
+    restart: always
+    ports:
+      - '6001:6001'          # Must match SOKETI_PORT in .env
+
+volumes:
+  postgres_data:             # Stores database data on your laptop between restarts.
